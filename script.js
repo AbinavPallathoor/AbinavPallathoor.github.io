@@ -63,12 +63,21 @@ const fonts = [
     const about = document.getElementById("about").getBoundingClientRect();
     const projects = document.getElementById("projects").getBoundingClientRect();
   
-    if (about.top <= window.innerHeight / 2 && about.bottom >= 0) {
+    if (about.top <= window.innerHeight / 2 && about.bottom >= window.innerHeight / 2) {
       navText.textContent = "I AM Abinav Pallathoor";
-    } else if (projects.top <= window.innerHeight / 2 && projects.bottom >= 0) {
+    } else if (projects.top <= window.innerHeight && projects.bottom >= 0) {
       navText.textContent = "I AM a Maker";
     } else {
       navText.textContent = "I AM";
     }
   });
   
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+  
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
