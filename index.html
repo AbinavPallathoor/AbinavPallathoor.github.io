@@ -1,7 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abinav | Personal Webpage</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+  <nav>
+    <div class="dropdown">
+      <span id="navText">I AM</span>
+      <div class="dropdown-content">
+        <a href="#about">I AM Abinav Pallathoor</a>
+        <a href="#projects">I AM a Maker</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div id="glitch-name" class="glitch-text" data-text="Abinav">Abinav</div>
+    <div id="glitch-surname" class="glitch-text" data-text="Pallathoor">Pallathoor</div>
+    <div class="grain"></div>
+  </section>
+
+  <section id="about">
+    <div class="about-content">
+      <div class="text">
+        <h2>About Me</h2>
+        <p>I’m Abinav Pallathoor, a developer and innovator passionate about creating things.</p>
+      </div>
+      <div class="image-container">
+        <img id="profile-pic" src="profile_pics/profile1.jpg" alt="Profile Picture" />
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="project-cards">
+      <a href="https://example.com/robot" class="card">
+        <img src="project_images/robot.jpg" alt="Robot" />
+        <p>Personal Robot</p>
+      </a>
+      <a href="https://example.com/car" class="card">
+        <img src="project_images/car.jpg" alt="Car" />
+        <p>Smart Car</p>
+      </a>
+      <a href="https://example.com/arm" class="card">
+        <img src="project_images/arm.jpg" alt="Robotic Arm" />
+        <p>Robotic Arm</p>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="socials">
+      <a href="https://github.com/AbinavPallathoor/">GitHub</a>
+      <a href="https://abinav-pallathoor.itch.io/">Itch</a>
+      <a href="mailto:abinav.pallathoor@gmail.com">Email</a>
+    </div>
+    <p>&copy; 2025 Abinav Pallathoor</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

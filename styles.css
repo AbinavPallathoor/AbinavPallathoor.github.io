@@ -1,0 +1,226 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: black;
+    color: white;
+    font-family: monospace;
+    overflow-x: hidden;
+  }
+  
+  nav {
+    position: fixed;
+    width: 100%;
+    text-align: center;
+    background: black;
+    padding: 1rem 0;
+    z-index: 10;
+  }
+  
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #222;
+    min-width: 200px;
+    text-align: left;
+    padding: 10px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+    z-index: 1;
+  }
+  
+  .dropdown-content a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 8px;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    text-align: center;
+    padding-top: 4rem;
+    overflow: hidden;
+    background: black;
+  }
+  
+  .glitch-text {
+    position: relative;
+    font-size: 12vw;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    height: 1.2em;
+    transition: transform 0.1s;
+  }
+  
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    font-weight: bold;
+    overflow: hidden;
+    z-index: -1;
+  }
+  
+  .glitch-text::before {
+    color: #ff0055;
+    transform: translate(-3px, -1px);
+    clip-path: inset(0 0 45% 0);
+    animation: glitch-anim 1s infinite linear alternate-reverse;
+  }
+  
+  .glitch-text::after {
+    color: #00ffee;
+    transform: translate(2px, 2px);
+    clip-path: inset(55% 0 0 0);
+    animation: glitch-anim2 1s infinite linear alternate-reverse;
+  }
+  
+  @keyframes glitch-anim {
+    0% { clip-path: inset(80% 0 0 0); }
+    25% { clip-path: inset(10% 0 85% 0); }
+    50% { clip-path: inset(50% 0 30% 0); }
+    75% { clip-path: inset(0 0 80% 0); }
+    100% { clip-path: inset(25% 0 55% 0); }
+  }
+  
+  @keyframes glitch-anim2 {
+    0% { clip-path: inset(0 0 70% 0); }
+    25% { clip-path: inset(50% 0 40% 0); }
+    50% { clip-path: inset(10% 0 60% 0); }
+    75% { clip-path: inset(70% 0 20% 0); }
+    100% { clip-path: inset(0 0 100% 0); }
+  }
+  
+  /* Updated grain effect for hero */
+  .hero .grain {
+    position: absolute;
+    inset: 0;
+    background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 5;
+    animation: grain-animation 0.5s infinite;
+  }
+  
+  @keyframes grain-animation {
+    0% {
+      background-position: 0 0;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+  
+  #about {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background-color: #111;
+  }
+  
+  .about-content {
+    display: flex;
+    flex-direction: row;
+    max-width: 1200px;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .about-content .text {
+    flex: 1;
+  }
+  
+  .about-content .image-container {
+    flex: 1;
+  }
+  
+  .about-content img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+  }
+  
+  #projects {
+    padding: 4rem 2rem;
+    background-color: #181818;
+    text-align: center;
+  }
+  
+  .project-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .card {
+    background-color: #222;
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    width: 250px;
+    transition: transform 0.2s;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+    background-color: #333;
+  }
+  
+  .card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  footer {
+    background-color: black;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  
+  footer .socials a {
+    margin: 0 1rem;
+    color: white;
+    text-decoration: none;
+  }
+  
+  footer .socials a:hover {
+    color: #00ffee;
+  }
+  
