@@ -1,0 +1,378 @@
+:root {
+  --blue: #0000ff;
+  --ink: #000;
+  --paper: #fff;
+  --radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  /* Scroll anchoring would fight the card animations. */
+  overflow-anchor: none;
+}
+
+p,
+h1,
+h2,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--blue);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ---------- hand-drawn art (masks, so they take any color) ---------- */
+
+.drawing {
+  display: block;
+  background: var(--blue);
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center;
+}
+
+.drawing--name {
+  aspect-ratio: 1278 / 365;
+  mask-image: url('./assets/name.png');
+}
+
+.drawing--bye {
+  aspect-ratio: 1211 / 779;
+  mask-image: url('./assets/bye.png');
+}
+
+/* ---------- page ---------- */
+
+.page {
+  max-width: calc(984px + 2 * 20px);
+  margin: 0 auto;
+  padding: 56px 20px 0;
+}
+
+.tagline {
+  /* Always one line: shrink with the page. JetBrains Mono glyphs are 0.6em wide, and the line is
+     51 characters (~31em), so divide the page's content width by a bit more than that. */
+  font-size: min(20px, (100vw - 40px) / 32);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 4vw, 40px);
+  margin: 28px 0 40px;
+}
+
+.name {
+  flex: 0 1 470px;
+  min-width: 0;
+}
+
+.my-stuff {
+  font-size: clamp(15px, 1.9vw, 20px);
+  line-height: 1.55;
+  min-width: 0;
+}
+
+.my-stuff a {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- project grid ---------- */
+
+.projects {
+  container-type: inline-size;
+}
+
+.grid {
+  --cols: 4;
+  --gap: 10px;
+  --card-w: calc((100cqi - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  --card-h: calc(var(--card-w) * 341 / 221);
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-flow: row;
+  /* The height is pinned while cards animate; never stretch rows into the slack. */
+  align-content: start;
+  gap: var(--gap);
+}
+
+@container (max-width: 740px) {
+  .grid {
+    --cols: 3;
+  }
+}
+
+@container (max-width: 500px) {
+  .grid {
+    --cols: 2;
+    --gap: 8px;
+  }
+}
+
+.card {
+  position: relative;
+  height: var(--card-h);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  display: grid;
+  grid-template-areas: 'date' 'viewer' 'body';
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 8px 8px 10px;
+  overflow: hidden;
+}
+
+.card {
+  cursor: pointer;
+}
+
+.card:not(.is-open):hover {
+  border-color: var(--blue);
+}
+
+.card-date {
+  grid-area: date;
+  justify-self: end;
+  font-size: clamp(12px, 1.6cqi, 18px);
+}
+
+.card-viewer {
+  grid-area: viewer;
+  position: relative;
+  min-height: 0;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.card-viewer canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-viewer:active {
+  cursor: grabbing;
+}
+
+.card-body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: clamp(13px, 1.9cqi, 18px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.card-summary {
+  margin-top: 2px;
+  font-size: clamp(10px, 1.35cqi, 13px);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.card-more,
+.card-close {
+  display: none;
+}
+
+/* ---------- open card ---------- */
+
+.card.is-open {
+  grid-column: 1 / -1;
+  grid-row: var(--open-row, auto);
+  height: auto;
+  min-height: var(--card-h);
+  cursor: auto;
+  grid-template-areas:
+    'viewer body'
+    'date   body';
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: calc(var(--card-h) - 76px) auto;
+  column-gap: clamp(20px, 4cqi, 40px);
+  padding: 12px 24px 16px;
+}
+
+.card.is-open .card-date {
+  justify-self: center;
+  padding-top: 6px;
+}
+
+.card.is-open .card-body {
+  padding-top: 24px;
+}
+
+.card.is-open .card-summary {
+  display: none;
+}
+
+.card.is-open .card-more {
+  display: block;
+}
+
+.card-details {
+  margin-top: 8px;
+  max-width: 48ch;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.card-links-label {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.card-links {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.card-links a {
+  overflow-wrap: anywhere;
+}
+
+.card.is-open .card-close {
+  display: block;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 4px 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.card-close:hover {
+  color: var(--blue);
+}
+
+@container (max-width: 640px) {
+  .card.is-open {
+    grid-template-areas: 'viewer' 'date' 'body';
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    padding: 12px 12px 16px;
+  }
+
+  .card.is-open .card-viewer {
+    aspect-ratio: 4 / 3;
+  }
+
+  .card.is-open .card-body {
+    padding-top: 12px;
+  }
+
+  .card.is-open .card-close {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+  }
+}
+
+/* ---------- squiggle + footer ---------- */
+
+.squiggle {
+  display: block;
+  width: 100%;
+  height: 110px;
+  margin-top: 48px;
+  overflow: visible;
+}
+
+.squiggle path {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.footer {
+  max-width: calc(984px + 2 * 20px);
+  margin: 0 auto;
+  padding: 16px 20px 56px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  font-size: clamp(15px, 1.9vw, 21px);
+  line-height: 1.5;
+}
+
+.footer a {
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.drawing--bye {
+  width: clamp(150px, 20vw, 200px);
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 640px) {
+  .page {
+    padding-top: 32px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .name {
+    flex: none;
+    width: min(100%, 420px);
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .drawing--bye {
+    order: 3;
+    justify-self: center;
+  }
+}

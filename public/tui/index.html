@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Abinav Pallathoor · Robotics Engineer</title>
+  <meta name="description" content="Abinav Pallathoor — robotics engineer building robots from CAD to code. ROS 2, Fusion 360, ESP32/STM32, Python, C++.">
+  <meta name="google-site-verification" content="wsY_CHERPJkAEXIBTDBq-pJs5keDg-iaRCiZD_QjlCU" />
+  <meta name="theme-color" content="#1e1212">
+  <meta property="og:title" content="Abinav Pallathoor · Robotics Engineer">
+  <meta property="og:description" content="I build robots from CAD to code.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://abinav.is-a.dev/">
+  <meta property="og:image" content="https://abinav.is-a.dev/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- WebTUI: only the pieces we use (its base/button styles would restyle every button) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/utils/box.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/components/badge.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/components/progress.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/components/spinner.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/components/input.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.10/dist/components/textarea.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="home">
+  <div class="term" id="term" box-="double" shear-="both">
+    <header class="bar top">
+      <button class="title" id="homeLink" aria-label="Home">Abinav Pallathoor</button>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+    </header>
+
+    <div class="hero" id="hero">
+      <div class="hero-box" id="heroBox">
+        <canvas id="cyclone" aria-hidden="true"></canvas>
+        <div class="hero-id" id="heroId">
+          <div class="hero-text" id="heroName">
+            <pre class="banner" id="banner" aria-label="Abinav"></pre>
+            <p class="hero-sub"><span>Pallathoor</span> · <span>robotics engineer</span></p>
+          </div>
+        </div>
+        <nav class="orbit" id="orbit" aria-label="Sections"></nav>
+      </div>
+    </div>
+
+    <main class="panes" id="panes" aria-live="polite">
+      <section class="pane" id="paneA" box-="square" shear-="top">
+        <header class="pane-head"><span class="pane-title" id="titleA"></span></header>
+        <div class="pane-body" id="bodyA"></div>
+      </section>
+      <section class="pane" id="paneB" box-="square" shear-="top">
+        <header class="pane-head"><span class="pane-title" id="titleB"></span></header>
+        <div class="pane-body" id="bodyB"></div>
+      </section>
+    </main>
+
+    <footer class="bar bottom">
+      <span class="hints" id="hints"></span>
+      <span class="pos" id="pos"></span>
+    </footer>
+  </div>
+
+  <noscript>
+    <div class="noscript">
+      <h1>Abinav Pallathoor</h1>
+      <p>Robotics Engineer — I build robots from CAD to code.</p>
+      <p><a href="mailto:abinav.pallathoor@gmail.com">abinav.pallathoor@gmail.com</a> ·
+         <a href="https://github.com/AbinavPallathoor">GitHub</a> ·
+         <a href="https://www.linkedin.com/in/abinav-pallathoor-b65785353/">LinkedIn</a> ·
+         <a href="assets/Abinav_Pallathoor_CV.pdf">CV</a></p>
+    </div>
+  </noscript>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrambleTextPlugin.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/cyclone.js"></script>
+  <script src="js/ascii.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
