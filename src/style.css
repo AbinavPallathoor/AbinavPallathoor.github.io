@@ -353,6 +353,7 @@ a {
 .card--game.is-open .card-date {
   justify-self: start;
   padding-top: 0;
+  margin-bottom: 8px;
 }
 
 .card--game.is-open .card-body {
@@ -398,6 +399,10 @@ a {
 
   .card--portrait.is-open .card-viewer {
     justify-self: center;
+  }
+
+  .card--portrait.is-open .card-date {
+    margin-bottom: 8px;
   }
 }
 

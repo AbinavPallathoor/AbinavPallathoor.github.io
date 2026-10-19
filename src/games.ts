@@ -61,9 +61,7 @@ export const games: Game[] = [
     summary: 'Top-down co-op survival horror for two players on one keyboard, made in Unity for two game jams.',
     details:
       'Lost in a forest with only a torch and a friend, two players share one keyboard and have to keep each ' +
-      'other in the light while mutated creatures stalk the dark. One carries the torch (WASD), the other is the ' +
-      'engineer (arrow keys). Made in Unity with Texor and Palkee for the Callidus Game Jam and the Gamedeon ' +
-      'Summer Jam, and playable in the browser.',
+      'other in the light while mutated creatures stalk the dark.',
     links: [link('Play on itch.io', 'https://abinav-pallathoor.itch.io/stay-in-the-light')],
     case: {
       cover: file('stay-in-the-light/cover.jpg'),
