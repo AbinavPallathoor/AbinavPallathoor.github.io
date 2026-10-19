@@ -182,6 +182,7 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
     const url = next ? `#${next.id}` : location.pathname + location.search
     history.replaceState(null, '', url)
   }
+  if (next) countCardView(next)
 
   const duration = reducedMotion.matches ? 0 : 0.7
   if (prev) turntables.get(prev)?.close(duration)
@@ -286,6 +287,19 @@ document.addEventListener('keydown', (e) => {
     card.focus({ preventScroll: true })
   }
 })
+
+// GoatCounter ignores the hash, so each opened card is counted as its own /#id page. count.js loads
+// async from index.html; if it isn't ready yet (a deep link on page load), count once it is.
+declare global {
+  interface Window {
+    goatcounter?: { count?: (vars: { path: string; title?: string }) => void }
+  }
+}
+function countCardView(card: HTMLElement) {
+  const count = window.goatcounter?.count
+  if (count) count({ path: `/#${card.id}`, title: card.querySelector('.card-title')?.textContent ?? card.id })
+  else document.querySelector('script[data-goatcounter]')?.addEventListener('load', () => countCardView(card), { once: true })
+}
 
 // Deep links: /#axis-x opens that card.
 function openFromHash() {
