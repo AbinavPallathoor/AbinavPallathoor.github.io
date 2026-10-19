@@ -57,7 +57,7 @@ a {
 }
 
 .drawing--name {
-  aspect-ratio: 1278 / 365;
+  aspect-ratio: 1010 / 365;
   mask-image: url('./assets/name.png');
 }
 
@@ -90,7 +90,7 @@ a {
 }
 
 .name {
-  flex: 0 1 470px;
+  flex: 0 1 372px;
   min-width: 0;
 }
 
@@ -904,7 +904,7 @@ a {
 
   .name {
     flex: none;
-    width: min(100%, 420px);
+    width: min(100%, 332px);
   }
 
   .footer {
