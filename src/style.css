@@ -25,6 +25,7 @@ body {
 p,
 h1,
 h2,
+h3,
 ul {
   margin: 0;
 }
@@ -103,6 +104,23 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* ---------- sections ---------- */
+
+.section + .section {
+  margin-top: 64px;
+}
+
+.section-title {
+  margin-bottom: 12px;
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 400;
+}
+
+.section-soon {
+  font-size: 14px;
+  opacity: 0.6;
+}
+
 /* ---------- project grid ---------- */
 
 .projects {
@@ -163,12 +181,27 @@ a {
   font-size: clamp(12px, 1.6cqi, 18px);
 }
 
+.card-status {
+  padding: 0 0.4em;
+  border: 1px solid currentColor;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-status + time {
+  margin-left: 0.6em;
+}
+
 .card-viewer {
   grid-area: viewer;
   position: relative;
   min-height: 0;
   touch-action: pan-y;
   cursor: grab;
+  /* Dragging spins the model or case; it shouldn't select text. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .card-viewer canvas {
@@ -307,6 +340,315 @@ a {
     right: 8px;
     z-index: 1;
   }
+}
+
+/* ---------- game cards: a CD jewel case (built in cdcase.ts) ---------- */
+
+/* Open, a game card keeps its closed layout, with a wide viewer for the open case and trailer. */
+.card--game.is-open {
+  grid-template-areas: 'date' 'viewer' 'body';
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+}
+
+.card--game.is-open .card-viewer {
+  aspect-ratio: 16 / 9;
+}
+
+.card--game.is-open .card-date {
+  justify-self: start;
+  padding-top: 0;
+}
+
+.card--game.is-open .card-body {
+  padding-top: 12px;
+}
+
+/*
+ * A vertical (phone) trailer sits on the left with the text beside it. The viewer's height is capped so
+ * the whole video fits on screen; its width follows from the video's shape (592 x 1296).
+ */
+.card--game.card--portrait.is-open {
+  --video-h: min(72svh, 640px);
+  grid-template-areas:
+    'viewer date'
+    'viewer body';
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+}
+
+.card--game.card--portrait.is-open .card-viewer {
+  aspect-ratio: auto;
+  height: var(--video-h);
+  width: calc(var(--video-h) * 592 / 1296);
+}
+
+/* Phones: stacked, with the video centred and still short enough to see in one go. */
+@container (max-width: 640px) {
+  .card--game.card--portrait.is-open {
+    --video-h: min(70svh, 560px);
+    grid-template-areas: 'date' 'viewer' 'body';
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+
+  .card--game.card--portrait.is-open .card-viewer {
+    justify-self: center;
+  }
+}
+
+/* Units: everything below is in case units (a jewel case is 142 x 125), one unit = --u. */
+.cd {
+  --u: 3px; /* keep in sync with U in cdcase.ts */
+  position: absolute;
+  inset: 0;
+}
+
+.cd-spin,
+.cd-slab {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.cd-spin {
+  width: calc(142 * var(--u));
+  height: calc(125 * var(--u));
+  left: calc(50% - 71 * var(--u));
+  top: calc(50% - 62.5 * var(--u));
+}
+
+.cd-slab {
+  inset: 0;
+}
+
+.cd-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.cd-edge--left,
+.cd-edge--right {
+  width: calc(var(--t) * var(--u));
+}
+
+.cd-edge--left {
+  transform-origin: left center;
+}
+
+.cd-edge--right {
+  left: auto;
+  right: 0;
+  transform-origin: right center;
+}
+
+.cd-edge--top,
+.cd-edge--bottom {
+  height: calc(var(--t) * var(--u));
+}
+
+.cd-edge--top {
+  transform-origin: center top;
+}
+
+.cd-edge--bottom {
+  top: auto;
+  bottom: 0;
+  transform-origin: center bottom;
+}
+
+/* Clear plastic */
+.cd-front {
+  background: linear-gradient(160deg, #f6f8fa, #d9dee3);
+}
+
+.cd-lid-edge {
+  background: linear-gradient(90deg, rgba(210, 218, 226, 0.85), rgba(240, 244, 248, 0.9));
+}
+
+.cd-hinge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(12 * var(--u));
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0 calc(0.7 * var(--u)), rgba(255, 255, 255, 0.35) 0 calc(1.6 * var(--u))),
+    linear-gradient(90deg, #b9c1c8, #dde2e6 60%, #c4cbd1);
+}
+
+.cd-cover {
+  position: absolute;
+  left: calc(16 * var(--u));
+  top: calc(2.5 * var(--u));
+  width: calc(120 * var(--u));
+  height: calc(120 * var(--u));
+  object-fit: cover;
+}
+
+.cd-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.5) 48%, rgba(255, 255, 255, 0.12) 53%, transparent 62%)
+    var(--sheen, 50%) 0 / 260% 100% no-repeat;
+}
+
+.cd-tray-edge {
+  background: linear-gradient(90deg, #1a1a1a, #2c2c2c);
+}
+
+/* The tray card wraps round both sides, so the spines carry the cover colour. */
+.cd-tray-edge.cd-edge--left,
+.cd-tray-edge.cd-edge--right {
+  background: var(--case);
+  color: var(--case-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-spine {
+  writing-mode: vertical-rl;
+  font-size: calc(5 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* Back cover */
+.cd-back {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--u));
+  padding: calc(6 * var(--u)) calc(7 * var(--u)) calc(5 * var(--u));
+  background: var(--case);
+  color: var(--case-ink);
+  font-size: calc(3.6 * var(--u));
+  line-height: 1.35;
+}
+
+.cd-back-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(4 * var(--u));
+}
+
+.cd-back-title {
+  font-size: calc(12 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cd-back-tagline {
+  font-size: calc(4.4 * var(--u));
+  font-weight: 700;
+  text-align: right;
+}
+
+.cd-back-main {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: calc(5 * var(--u));
+  align-items: start;
+}
+
+.cd-back-shot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: calc(0.8 * var(--u)) solid var(--case-ink);
+}
+
+.cd-features {
+  margin-top: calc(2.5 * var(--u));
+  font-weight: 700;
+}
+
+.cd-features li::before {
+  content: '▸ ';
+}
+
+.cd-back-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: calc(4 * var(--u));
+  padding-top: calc(3 * var(--u));
+  border-top: calc(0.6 * var(--u)) solid var(--case-ink);
+}
+
+.cd-badges {
+  display: flex;
+  gap: calc(2 * var(--u));
+}
+
+.cd-badge {
+  padding: calc(0.8 * var(--u)) calc(1.8 * var(--u));
+  border: calc(0.6 * var(--u)) solid var(--case-ink);
+  font-size: calc(3 * var(--u));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cd-legal {
+  flex: 1;
+  font-size: calc(2.6 * var(--u));
+}
+
+.cd-barcode {
+  width: calc(26 * var(--u));
+  height: calc(12 * var(--u));
+  border: calc(1.2 * var(--u)) solid #fff;
+  background-color: #fff;
+}
+
+/* The trailer, filling the open viewer (16:9, like the video). */
+.cd-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  border-radius: var(--radius);
+}
+
+/* Screenshots are 4:3 in a 16:9 viewer: show them whole, letterboxed on black. */
+.cd-slides {
+  overflow: hidden;
+}
+
+.cd-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cd-sound {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 1;
+  padding: 2px 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cd-sound:hover {
+  color: var(--blue);
+  border-color: var(--blue);
 }
 
 /* ---------- squiggle + footer ---------- */

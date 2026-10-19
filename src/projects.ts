@@ -1,12 +1,20 @@
-export type Project = {
+/** What every card shows, whatever sits in its viewer. */
+export type CardInfo = {
   id: string
   title: string
   /** 'YYYY', 'YYYY/MM' or 'YYYY/MM/DD'. Undated projects go last. */
   date?: string
+  /** A label like 'Discontinued', shown on the date line. */
+  status?: string
   /** Shown on the small card, cut off after 3 lines. */
   summary: string
   /** Longer text shown when the card is open. */
   details: string
+  links: { label: string; href: string }[]
+}
+
+/** A hardware project: a 3D model on a turntable. */
+export type Project = CardInfo & {
   model: {
     /** Path inside /public. */
     url: string
@@ -15,10 +23,9 @@ export type Project = {
     /** Size relative to the default fit (1 = fills the viewer). */
     scale?: number
   }
-  links: { label: string; href: string }[]
 }
 
-const link = (label: string, href: string) => ({ label, href })
+export const link = (label: string, href: string) => ({ label, href })
 /** A file in /public/docs. */
 const doc = (label: string, file: string) => ({ label, href: `${import.meta.env.BASE_URL}docs/${file}` })
 
@@ -116,7 +123,7 @@ const all: Project[] = [
 ]
 
 /** Newest first; a bare year sorts after the months of that year. Undated projects go last. */
-function byDate(a: Project, b: Project) {
+export function byDate(a: CardInfo, b: CardInfo) {
   if (!a.date || !b.date) return a.date ? -1 : b.date ? 1 : 0
   return b.date.localeCompare(a.date)
 }

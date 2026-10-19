@@ -5,14 +5,19 @@ import './style.css'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
-import { projects, type Project } from './projects'
+import { projects, type CardInfo } from './projects'
+import { games } from './games'
 import { Stage } from './stage'
+import { CdCase } from './cdcase'
 import { drawSquiggle } from './squiggle'
 
 gsap.registerPlugin(Flip, ScrollToPlugin)
 
-const grid = document.querySelector<HTMLElement>('#grid')!
+const root = document.querySelector<HTMLElement>('main')!
+const grids = [...document.querySelectorAll<HTMLElement>('.grid')]
 const stage = new Stage()
+/** The CD case in each game card, so opening the card can open the case. */
+const cdCases = new Map<HTMLElement, CdCase>()
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
 
 // ---------- cards ----------
@@ -24,7 +29,8 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
   return node
 }
 
-function projectCard(p: Project) {
+/** The card shell; the caller fills its viewer. */
+function cardShell(p: CardInfo) {
   const card = el('article', 'card')
   card.id = p.id
   card.tabIndex = 0
@@ -33,16 +39,23 @@ function projectCard(p: Project) {
   card.setAttribute('aria-label', p.title)
 
   // Undated cards keep an empty line here so every card's model sits at the same height.
-  const date = el('time', 'card-date', p.date ?? '\u00a0')
-  if (p.date) date.dateTime = p.date.replaceAll('/', '-')
+  const date = el('p', 'card-date')
+  if (p.status) date.append(el('span', 'card-status', p.status))
+  if (p.date) {
+    const time = el('time', undefined, p.date)
+    time.dateTime = p.date.replaceAll('/', '-')
+    date.append(time)
+  }
+  if (!date.childNodes.length) date.textContent = '\u00a0'
 
   const viewer = el('div', 'card-viewer')
 
   const body = el('div', 'card-body')
-  body.append(el('h2', 'card-title', p.title), el('p', 'card-summary', p.summary))
+  body.append(el('h3', 'card-title', p.title), el('p', 'card-summary', p.summary))
 
   const more = el('div', 'card-more')
-  more.append(el('p', 'card-details', p.details), el('p', 'card-links-label', 'Links →'))
+  more.append(el('p', 'card-details', p.details))
+  if (p.links.length) more.append(el('p', 'card-links-label', 'Links →'))
   const links = el('ul', 'card-links')
   for (const link of p.links) {
     const a = el('a', undefined, link.label)
@@ -64,17 +77,31 @@ function projectCard(p: Project) {
   close.setAttribute('aria-label', `Close ${p.title}`)
 
   card.append(date, viewer, body, close)
-  stage.add(viewer, p.model)
-  return card
+  return { card, viewer }
 }
 
-for (const p of projects) grid.append(projectCard(p))
+const hardwareGrid = document.querySelector<HTMLElement>('#hardware')!
+for (const p of projects) {
+  const { card: c, viewer } = cardShell(p)
+  stage.add(viewer, p.model)
+  hardwareGrid.append(c)
+}
+
+const gamedevGrid = document.querySelector<HTMLElement>('#gamedev')!
+for (const g of games) {
+  const { card: c, viewer } = cardShell(g)
+  c.classList.add('card--game')
+  if (g.case.portrait) c.classList.add('card--portrait')
+  cdCases.set(c, new CdCase(viewer, g))
+  gamedevGrid.append(c)
+}
 
 // ---------- open / close ----------
 
 let openCard: HTMLElement | null = null
 const BODY_PROPS = 'transform,position,gridArea,left,top,width'
 let activeFlip: gsap.core.Timeline | undefined
+let gridTweens: gsap.core.Tween[] = []
 
 /** Scroll position that brings an (already re-laid-out) card fully into view, or null if it fits. */
 function scrollToFit(card: HTMLElement) {
@@ -101,20 +128,22 @@ function bodyOffset(card: HTMLElement) {
  */
 function placeOpenCard() {
   if (!openCard) return
+  const grid = openCard.parentElement!
   const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length
   const index = [...grid.children].indexOf(openCard)
   // Set on the grid, not the card: Flip resets the card's inline styles when it finishes.
   grid.style.setProperty('--open-row', String(Math.floor(index / cols) + 1))
 }
-new ResizeObserver(placeOpenCard).observe(grid)
+const gridResize = new ResizeObserver(placeOpenCard)
+for (const grid of grids) gridResize.observe(grid)
 
 function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
   if (next === openCard) return
 
-  const cards = grid.querySelectorAll<HTMLElement>('.card')
-  const inner = grid.querySelectorAll<HTMLElement>('.card-date, .card-viewer')
+  const cards = root.querySelectorAll<HTMLElement>('.card')
+  const inner = root.querySelectorAll<HTMLElement>('.card-date, .card-viewer')
   const state = Flip.getState([...cards, ...inner])
-  const fromHeight = grid.offsetHeight
+  const fromHeights = grids.map((g) => g.offsetHeight)
 
   // The text block isn't flipped: resizing it would re-wrap the text every frame.
   // Instead it takes its final width immediately and slides from its old spot in the card.
@@ -124,10 +153,13 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
   // Interrupted mid-animation? Everything above was measured where it currently is, so stop the old
   // tweens and let the new ones start from there.
   activeFlip?.kill()
-  const bodies = grid.querySelectorAll('.card-body')
-  gsap.killTweensOf([grid, window, ...bodies])
+  const bodies = root.querySelectorAll('.card-body')
+  gsap.killTweensOf([window, ...bodies])
   gsap.set(bodies, { clearProps: BODY_PROPS })
+  for (const t of gridTweens) t.kill()
+  for (const grid of grids) grid.style.removeProperty('min-height')
 
+  const prev = openCard
   openCard?.classList.remove('is-open')
   openCard?.setAttribute('aria-expanded', 'false')
   next?.classList.add('is-open')
@@ -141,6 +173,8 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
   }
 
   const duration = reducedMotion.matches ? 0 : 0.7
+  if (prev) cdCases.get(prev)?.close(duration)
+  if (next) cdCases.get(next)?.open(duration)
   // Pin each text block absolutely at its final spot and width while the card animates. Flip lifts the
   // viewer and date out of the card's layout during the animation; on the stacked phone layout the text
   // would otherwise ride up into their space and snap back at the end. The pinned width also stops the
@@ -158,9 +192,26 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
     }
   })
 
-  const toHeight = grid.offsetHeight
+  const toHeights = grids.map((g) => g.offsetHeight)
   const scrollTarget = next ? scrollToFit(next) : null
 
+  // Cards go absolute during the flip, so hold each grid's height steady and ease it instead. The grids
+  // must never lose their height, even for an instant, or the page gets shorter and the browser clamps the
+  // scroll position. So pin them before Flip lifts the cards out, and tween a plain number rather than
+  // the CSS property (a CSS tween briefly clears the inline value when it starts). It's min-height, not
+  // height: Flip records the end layout below, and a fixed height would squash the open card's row.
+  gridTweens = grids.map((grid, i) => {
+    const h = { px: fromHeights[i] }
+    const apply = () => grid.style.setProperty('min-height', `${h.px}px`)
+    apply()
+    return gsap.to(h, {
+      px: toHeights[i],
+      duration,
+      ease: 'power3.inOut',
+      onUpdate: apply,
+      onComplete: () => grid.style.removeProperty('min-height'),
+    })
+  })
   activeFlip = Flip.from(state, {
     duration,
     ease: 'power3.inOut',
@@ -172,8 +223,6 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
     gsap.set(body, pinned)
     gsap.fromTo(body, { x: dx, y: dy }, { x: 0, y: 0, duration, ease: 'power3.inOut', clearProps: BODY_PROPS })
   }
-  // Cards go absolute during the flip, so hold the grid's height steady and ease it instead.
-  gsap.fromTo(grid, { height: fromHeight }, { height: toHeight, duration, ease: 'power3.inOut', clearProps: 'height' })
   // Scroll alongside the animation, not after it.
   if (scrollTarget !== null) gsap.to(window, { scrollTo: scrollTarget, duration, ease: 'power3.inOut' })
 
@@ -189,15 +238,15 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
 // A drag on the viewer spins the model; don't treat it as a click.
 let downX = 0
 let downY = 0
-grid.addEventListener('pointerdown', (e) => {
+root.addEventListener('pointerdown', (e) => {
   downX = e.clientX
   downY = e.clientY
 })
 
-grid.addEventListener('click', (e) => {
+root.addEventListener('click', (e) => {
   const target = e.target as HTMLElement
   if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
-  if (target.closest('a')) return
+  if (target.closest('a, .cd-sound')) return
 
   const card = target.closest<HTMLElement>('.card')
   if (!card) return
@@ -210,7 +259,7 @@ grid.addEventListener('click', (e) => {
   setOpen(card)
 })
 
-grid.addEventListener('keydown', (e) => {
+root.addEventListener('keydown', (e) => {
   const card = (e.target as HTMLElement).closest<HTMLElement>('.card')
   if (!card || e.target !== card) return
   if (e.key === 'Enter' || e.key === ' ') {
@@ -230,7 +279,7 @@ document.addEventListener('keydown', (e) => {
 // Deep links: /#axis-x opens that card.
 function openFromHash() {
   const id = decodeURIComponent(location.hash.slice(1))
-  const card = id ? grid.querySelector<HTMLElement>(`.card#${CSS.escape(id)}`) : null
+  const card = id ? root.querySelector<HTMLElement>(`.card#${CSS.escape(id)}`) : null
   setOpen(card, { updateHash: false })
   return card
 }
