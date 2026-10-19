@@ -7,8 +7,11 @@ import { Flip } from 'gsap/Flip'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { projects, type CardInfo } from './projects'
 import { games } from './games'
+import { apps } from './apps'
 import { Stage } from './stage'
-import { CdCase } from './cdcase'
+import type { Turntable } from './turntable'
+import { cdCase } from './cdcase'
+import { phone } from './phone'
 import { drawSquiggle } from './squiggle'
 
 gsap.registerPlugin(Flip, ScrollToPlugin)
@@ -16,8 +19,8 @@ gsap.registerPlugin(Flip, ScrollToPlugin)
 const root = document.querySelector<HTMLElement>('main')!
 const grids = [...document.querySelectorAll<HTMLElement>('.grid')]
 const stage = new Stage()
-/** The CD case in each game card, so opening the card can open the case. */
-const cdCases = new Map<HTMLElement, CdCase>()
+/** The CD case or phone in each game or app card, so opening the card can open it too. */
+const turntables = new Map<HTMLElement, Turntable>()
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
 
 // ---------- cards ----------
@@ -87,12 +90,20 @@ for (const p of projects) {
   hardwareGrid.append(c)
 }
 
+const softwareGrid = document.querySelector<HTMLElement>('#software')!
+for (const a of apps) {
+  const { card: c, viewer } = cardShell(a)
+  c.classList.add('card--app', 'card--portrait')
+  turntables.set(c, phone(viewer, a))
+  softwareGrid.append(c)
+}
+
 const gamedevGrid = document.querySelector<HTMLElement>('#gamedev')!
 for (const g of games) {
   const { card: c, viewer } = cardShell(g)
   c.classList.add('card--game')
   if (g.case.portrait) c.classList.add('card--portrait')
-  cdCases.set(c, new CdCase(viewer, g))
+  turntables.set(c, cdCase(viewer, g))
   gamedevGrid.append(c)
 }
 
@@ -173,8 +184,8 @@ function setOpen(next: HTMLElement | null, { updateHash = true } = {}) {
   }
 
   const duration = reducedMotion.matches ? 0 : 0.7
-  if (prev) cdCases.get(prev)?.close(duration)
-  if (next) cdCases.get(next)?.open(duration)
+  if (prev) turntables.get(prev)?.close(duration)
+  if (next) turntables.get(next)?.open(duration)
   // Pin each text block absolutely at its final spot and width while the card animates. Flip lifts the
   // viewer and date out of the card's layout during the animation; on the stacked phone layout the text
   // would otherwise ride up into their space and snap back at the end. The pinned width also stops the
@@ -246,7 +257,7 @@ root.addEventListener('pointerdown', (e) => {
 root.addEventListener('click', (e) => {
   const target = e.target as HTMLElement
   if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return
-  if (target.closest('a, .cd-sound')) return
+  if (target.closest('a, .tt-sound')) return
 
   const card = target.closest<HTMLElement>('.card')
   if (!card) return

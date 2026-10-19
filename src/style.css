@@ -116,11 +116,6 @@ a {
   font-weight: 400;
 }
 
-.section-soon {
-  font-size: 14px;
-  opacity: 0.6;
-}
-
 /* ---------- project grid ---------- */
 
 .projects {
@@ -342,7 +337,7 @@ a {
   }
 }
 
-/* ---------- game cards: a CD jewel case (built in cdcase.ts) ---------- */
+/* ---------- game and app cards: a CD case or phone on a turntable (turntable.ts) ---------- */
 
 /* Open, a game card keeps its closed layout, with a wide viewer for the open case and trailer. */
 .card--game.is-open {
@@ -365,10 +360,10 @@ a {
 }
 
 /*
- * A vertical (phone) trailer sits on the left with the text beside it. The viewer's height is capped so
+ * A vertical (phone) recording sits on the left with the text beside it. The viewer's height is capped so
  * the whole video fits on screen; its width follows from the video's shape (592 x 1296).
  */
-.card--game.card--portrait.is-open {
+.card--portrait.is-open {
   --video-h: min(72svh, 640px);
   grid-template-areas:
     'viewer date'
@@ -377,25 +372,91 @@ a {
   grid-template-rows: auto 1fr;
 }
 
-.card--game.card--portrait.is-open .card-viewer {
+.card--portrait.is-open .card-viewer {
   aspect-ratio: auto;
   height: var(--video-h);
   width: calc(var(--video-h) * 592 / 1296);
 }
 
+.card--portrait.is-open .card-date {
+  justify-self: start;
+  padding-top: 0;
+}
+
+.card--portrait.is-open .card-body {
+  padding-top: 12px;
+}
+
 /* Phones: stacked, with the video centred and still short enough to see in one go. */
 @container (max-width: 640px) {
-  .card--game.card--portrait.is-open {
+  .card--portrait.is-open {
     --video-h: min(70svh, 560px);
     grid-template-areas: 'date' 'viewer' 'body';
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto;
   }
 
-  .card--game.card--portrait.is-open .card-viewer {
+  .card--portrait.is-open .card-viewer {
     justify-self: center;
   }
 }
+
+/* The phone zooms in past its viewer until the screen fills it, so clip to the screen's rounded shape. */
+.card--app .card-viewer {
+  overflow: hidden;
+  border-radius: var(--screen-r, 0);
+}
+
+/* ---------- the open card's media (turntable.ts) ---------- */
+
+.tt-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  border-radius: var(--radius);
+}
+
+.card--app .tt-media {
+  border-radius: 0;
+}
+
+/* Screenshots are 4:3 in a 16:9 viewer: show them whole, letterboxed on black. */
+.tt-slides {
+  overflow: hidden;
+}
+
+.tt-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tt-sound {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 1;
+  padding: 2px 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.tt-sound:hover {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+/* ---------- CD case (cdcase.ts) ---------- */
 
 /* Units: everything below is in case units (a jewel case is 142 x 125), one unit = --u. */
 .cd {
@@ -608,47 +669,180 @@ a {
 }
 
 /* The trailer, filling the open viewer (16:9, like the video). */
-.cd-video {
+/* ---------- phone (phone.ts) ---------- */
+
+/* Measurements come from phone.ts as --w, --h, --d (depth), --r (corners), --sw, --sh, --sr (screen). */
+.ph {
+  --u: 3px; /* keep in sync with U in turntable.ts */
+  --phone-edge: color-mix(in srgb, var(--phone) 80%, #000);
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: #000;
-  border-radius: var(--radius);
 }
 
-/* Screenshots are 4:3 in a 16:9 viewer: show them whole, letterboxed on black. */
-.cd-slides {
+.ph-spin {
+  position: absolute;
+  transform-style: preserve-3d;
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u));
+  left: calc(50% - var(--w) * var(--u) / 2);
+  top: calc(50% - var(--h) * var(--u) / 2);
+}
+
+.ph-face,
+.ph-slice {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--r) * var(--u));
+}
+
+.ph-face {
+  backface-visibility: hidden;
   overflow: hidden;
 }
 
-.cd-slide {
+/* Stacked outlines between front and back: these make the rounded corners solid from an angle. */
+.ph-slice {
+  background: var(--phone-edge);
+}
+
+/* The flat stretches of the rim, between the rounded corners. */
+.ph-edge {
+  position: absolute;
+  background: var(--phone-edge);
+  backface-visibility: hidden;
+}
+
+.ph-edge--left,
+.ph-edge--right {
+  top: calc(var(--r) * var(--u));
+  width: calc(var(--d) * var(--u));
+  height: calc((var(--h) - 2 * var(--r)) * var(--u));
+}
+
+.ph-edge--left {
+  left: 0;
+  transform-origin: left center;
+}
+
+.ph-edge--right {
+  right: 0;
+  transform-origin: right center;
+}
+
+.ph-edge--top,
+.ph-edge--bottom {
+  left: calc(var(--r) * var(--u));
+  width: calc((var(--w) - 2 * var(--r)) * var(--u));
+  height: calc(var(--d) * var(--u));
+}
+
+.ph-edge--top {
+  top: 0;
+  transform-origin: center top;
+}
+
+.ph-edge--bottom {
+  bottom: 0;
+  transform-origin: center bottom;
+}
+
+.ph-front {
+  background: #050505;
+  box-shadow: inset 0 0 0 calc(0.6 * var(--u)) var(--phone-edge);
+}
+
+.ph-screen {
+  position: absolute;
+  left: calc((var(--w) - var(--sw)) / 2 * var(--u));
+  top: calc((var(--h) - var(--sh)) / 2 * var(--u));
+  width: calc(var(--sw) * var(--u));
+  height: calc(var(--sh) * var(--u));
+  border-radius: calc(var(--sr) * var(--u));
+  object-fit: cover;
+  background: #000;
+}
+
+/* Punch-hole front camera. */
+.ph-hole {
+  position: absolute;
+  left: calc(50% - 1.4 * var(--u));
+  top: calc((var(--h) - var(--sh)) / 2 * var(--u) + 2.5 * var(--u));
+  width: calc(2.8 * var(--u));
+  height: calc(2.8 * var(--u));
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 0 calc(0.3 * var(--u)) #1a1a1a;
+}
+
+.ph-sheen {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  background: linear-gradient(
+    115deg,
+    transparent calc(var(--sheen, 50%) - 25%),
+    rgb(255 255 255 / 0.12) var(--sheen, 50%),
+    transparent calc(var(--sheen, 50%) + 25%)
+  );
+  pointer-events: none;
 }
 
-.cd-sound {
+.ph-back {
+  background: var(--phone);
+  color: var(--phone-ink);
+}
+
+.ph-camera {
   position: absolute;
-  right: 6px;
-  bottom: 6px;
-  z-index: 1;
-  padding: 2px 8px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--paper);
-  font: inherit;
-  font-size: 12px;
-  color: var(--ink);
-  cursor: pointer;
+  left: calc(6 * var(--u));
+  top: calc(6 * var(--u));
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  border-radius: calc(6 * var(--u));
+  background: color-mix(in srgb, var(--phone) 88%, #000);
+  box-shadow: 0 0 0 calc(0.4 * var(--u)) var(--phone-edge);
 }
 
-.cd-sound:hover {
-  color: var(--blue);
-  border-color: var(--blue);
+.ph-lens {
+  position: absolute;
+  left: calc(3 * var(--u));
+  top: calc(3 * var(--u));
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #3a4a66 0 12%, #0b0b10 30%);
+  box-shadow: 0 0 0 calc(1 * var(--u)) #2a2a2c;
+}
+
+/* Flash, tucked into the bump's corner. */
+.ph-flash {
+  position: absolute;
+  right: calc(1.3 * var(--u));
+  top: calc(1.3 * var(--u));
+  width: calc(2.6 * var(--u));
+  height: calc(2.6 * var(--u));
+  border-radius: 50%;
+  background: #f4e7c4;
+}
+
+.ph-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46%;
+  text-align: center;
+  font-size: calc(6 * var(--u));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.ph-print {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(10 * var(--u));
+  text-align: center;
+  font-size: calc(3.2 * var(--u));
+  opacity: 0.7;
 }
 
 /* ---------- squiggle + footer ---------- */
